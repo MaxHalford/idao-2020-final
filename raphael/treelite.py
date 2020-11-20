@@ -12,7 +12,7 @@ def load_model_treelite(extension='so'):
     return treelite_runtime.Predictor(f'model.{extension}', verbose=True)
 
 
-def predict_treelite(model, X):
+def predict_treelite(predictor, X):
     # TARGET MACHINE
     import treelite_runtime
     batch = treelite_runtime.Batch.from_npy2d(X.values)
