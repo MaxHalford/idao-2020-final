@@ -5,15 +5,17 @@ Solution of team "Data O Plomo" to the final phase of the 2020 edition of the In
 ## Setup
 
 ```sh
-conda create -n idao python=3.8
-conda install --file requirements.txt
+conda create -n idao python=3.7.4
 conda activate idao
+pip install -r requirements.txt
 ```
 
 ## Track 2
 
 ```sh
-rm -f track_2/*.csv track_2/*.dat
+rm -f submissions/track_2.zip
+rm -f track_2/*.csv
+rm -f track_2/.DS_Store
 zip -jr submissions/track_2.zip track_2
 ```
 

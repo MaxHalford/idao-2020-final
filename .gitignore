@@ -3,3 +3,6 @@ __pycache__/
 *.ipynb_checkpoints
 .ipynb_checkpoints/
 *.lgb
+*.csv
+*.zip
+data/environment_info
