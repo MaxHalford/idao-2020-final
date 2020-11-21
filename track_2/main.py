@@ -3,6 +3,9 @@ import glob
 import joblib
 import lightgbm as lgb
 import pandas as pd
+from scipy import special
+import numpy as np
+
 
 class MeanEncoder:
 
@@ -35,6 +38,15 @@ class CountEncoder:
 
     def transform(self, df):
         return df.join(self.counts, on=self.on)[self.counts.name]
+
+
+class NMissing:
+
+    def __str__(self):
+        return 'n_missing'
+
+    def transform(self, df):
+        return df.isnull().sum(axis='columns').rename(str(self))
 
 
 dtypes = {
@@ -87,6 +99,8 @@ dtypes = {
     'feature_5': 'uint',
     'feature_6': 'uint',
     'feature_7': 'uint',
+    'feature_8': 'uint',
+    'feature_9': 'uint',
     'fl_coborrower': 'bool',
     'fl_active_coborrower': 'bool',
     'pay_load': 'float32',
@@ -100,9 +114,13 @@ fill_missing = [
     ('inquiry_recent_period', 0, 'uint'),
     ('inquiry_1_week', 0, 'uint'),
     ('clnt_experience_cur_mnth', 0, 'uint'),
+    ('clnt_experience_cur_year', 0, 'uint'),
     ('clnt_experience_total_mnth', 0, 'uint'),
     ('last_loan_date', 6200, 'uint'),
     ('first_loan_date', 6200, 'uint'),
+    ('ttl_officials', -1, 'category'),
+    ('ttl_legals', -1, 'category'),
+    ('ttl_bankruptcies', -1, 'category'),
     ('inquiry_recent_period', 0, 'uint'),
     ('inquiry_3_month', 0, 'uint'),
     ('inquiry_6_month', 0, 'uint'),
@@ -110,6 +128,11 @@ fill_missing = [
     ('inquiry_12_month', 0, 'uint'),
     ('inquiry_1_week', 0, 'uint'),
     ('inquiry_1_month', 0, 'uint'),
+    *[
+        (f'feature_{i}', -1, 'float32')
+        for i in range(10, 30)
+        if i != 11
+    ]
 ]
 
 
@@ -126,7 +149,7 @@ df = pd.read_csv(
     usecols=cols_to_use
 )
 
-df['n_missing'] = df.isnull().sum(axis='columns')
+df['missing'] = df.isnull().sum(axis='columns')
 
 for col, fill, dtype in fill_missing:
     df[col] = df[col].fillna(fill).astype(dtype)
@@ -146,9 +169,18 @@ test = pd.concat([df] + features, axis='columns')
 model = lgb.Booster(model_file='model.lgb')
 
 prediction = df.index.to_frame()
+# Quantile:
 prediction['target'] = model.predict(test)
 quantile_inf = prediction['target'].quantile(0.05)
 quantile_sup = prediction['target'].quantile(0.95)
 prediction['target'] = prediction['target'].apply(
     lambda x: 0.00000003 if x < quantile_sup and x > quantile_inf else x)
+
+# Distances:
+# y_pred = model.predict(test)
+# bests_preds = [min(p, 1 - p) for p in y_pred]
+# delete_idxs = np.argsort(bests_preds)[int(0.1*len(bests_preds))+1:]
+# y_pred[delete_idxs] = 0
+#prediction['target'] = y_pred
+
 prediction.to_csv('prediction.csv', index=False)
