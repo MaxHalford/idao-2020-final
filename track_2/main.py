@@ -18,18 +18,30 @@ dtypes = {
     'prt_name': 'category',
     'feature_0': 'category',
 }
-cols_to_use = list(dtypes.keys()) + ['card_id']
 
-test = pd.read_csv(
+fill_missing = [
+    ('inquiry_recent_period', 0, 'uint'),
+    ('inquiry_1_week', 0, 'uint')
+]
+
+cols_to_use = (
+    list(dtypes.keys()) +
+    list(col for col, *_ in fill_missing) +
+    ['card_id']
+)
+
+df = pd.read_csv(
     'test.csv',
-    #'../data/train.csv',
     index_col='card_id',
     dtype=dtypes,
     usecols=cols_to_use
 )
 
+for col, fill, dtype in fill_missing:
+    df[col] = df[col].fillna(fill).astype(dtype)
+
 model = lgb.Booster(model_file='model.lgb')
 
-prediction = test.index.to_frame()
+prediction = df.index.to_frame()
 prediction['target'] = model.predict(test)
 prediction.to_csv('prediction.csv', index=False)
