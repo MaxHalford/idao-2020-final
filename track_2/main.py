@@ -8,7 +8,15 @@ dtypes = {
     'channel_name': 'category',
     'channel_name_2': 'category',
     'sas_limit_after_003_amt': 'uint8',
-    'sas_limit_last_amt': 'uint8'
+    'sas_limit_last_amt': 'uint8',
+    'channel_name_modified_2018': 'category',
+    'clnt_education_name': 'category',
+    'clnt_marital_status_name': 'category',
+    'clnt_employment_type_name': 'category',
+    'clnt_speciality_sphere_name': 'category',
+    'clnt_sex_name': 'category',
+    'prt_name': 'category',
+    'feature_0': 'category',
 }
 cols_to_use = list(dtypes.keys()) + ['card_id']
 
