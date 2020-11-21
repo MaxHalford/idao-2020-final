@@ -1,5 +1,35 @@
+import glob
+
+import joblib
 import lightgbm as lgb
 import pandas as pd
+
+class MeanEncoder:
+
+    def __init__(self, df, on, by, prior_count=100):
+        self.on = on
+        self.by = by
+        counts = df.groupby(by)[on].agg(['mean', 'count'])
+        avg = df[on].mean()
+        self.means = (
+            counts
+            .eval('(mean * count + @avg * @prior_count) / (count + @prior_count)')
+            .rename(str(self))
+        )
+
+    def __str__(self):
+        return f'avg_{self.on}_by_{self.by}'
+
+    def transform(self, df):
+        return df.join(self.means, on=self.by)[self.means.name]
+
+class NMissing:
+
+    def __str__(self):
+        return 'n_missing'
+
+    def transform(self, df):
+        return df.isnull().sum(axis='columns').rename(str(self))
 
 dtypes = {
     'delivery_type': 'category',
@@ -39,6 +69,18 @@ df = pd.read_csv(
 
 for col, fill, dtype in fill_missing:
     df[col] = df[col].fillna(fill).astype(dtype)
+
+extractors = [
+    joblib.load(path)
+    for path in glob.glob('*.pkl')
+]
+
+features = []
+
+for ex in extractors:
+    features.append(ex.transform(df))
+
+test = pd.concat([df] + features, axis='columns')
 
 model = lgb.Booster(model_file='model.lgb')
 
