@@ -3,6 +3,7 @@ import glob
 import joblib
 import lightgbm as lgb
 import pandas as pd
+from scipy import special
 
 class MeanEncoder:
 
@@ -85,5 +86,5 @@ test = pd.concat([df] + features, axis='columns')
 model = lgb.Booster(model_file='model.lgb')
 
 prediction = df.index.to_frame()
-prediction['target'] = model.predict(test)
+prediction['target'] = special.expit(model.predict(test))
 prediction.to_csv('prediction.csv', index=False)
