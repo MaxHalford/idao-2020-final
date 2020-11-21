@@ -24,6 +24,20 @@ class MeanEncoder:
     def transform(self, df):
         return df.join(self.means, on=self.by)[self.means.name]
 
+
+class CountEncoder:
+
+    def __init__(self, df, on):
+        self.on = on
+        self.counts = df.groupby(on).size().rename(str(self))
+
+    def __str__(self):
+        return f'{self.on}_size'
+
+    def transform(self, df):
+        return df.join(self.counts, on=self.on)[self.counts.name]
+
+
 class NMissing:
 
     def __str__(self):
@@ -31,6 +45,7 @@ class NMissing:
 
     def transform(self, df):
         return df.isnull().sum(axis='columns').rename(str(self))
+
 
 dtypes = {
     'delivery_type': 'category',
@@ -117,6 +132,7 @@ fill_missing = [
         if i != 11
     ]
 ]
+
 
 cols_to_use = (
     list(dtypes.keys()) +
