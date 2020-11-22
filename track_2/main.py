@@ -166,21 +166,16 @@ for ex in extractors:
 
 test = pd.concat([df] + features, axis='columns')
 
-model = lgb.Booster(model_file='model.lgb')
-
 prediction = df.index.to_frame()
-# Quantile:
-prediction['target'] = model.predict(test)
+prediction['target'] = 0
+
+for i in range(5):
+    model = lgb.Booster(model_file=f'model_{i}.lgb')
+    prediction['target'] += model.predict(test)
+
 quantile_inf = prediction['target'].quantile(0.05)
 quantile_sup = prediction['target'].quantile(0.95)
 prediction['target'] = prediction['target'].apply(
     lambda x: 0.00000003 if x < quantile_sup and x > quantile_inf else x)
-
-# Distances:
-# y_pred = model.predict(test)
-# bests_preds = [min(p, 1 - p) for p in y_pred]
-# delete_idxs = np.argsort(bests_preds)[int(0.1*len(bests_preds))+1:]
-# y_pred[delete_idxs] = 0
-#prediction['target'] = y_pred
 
 prediction.to_csv('prediction.csv', index=False)
