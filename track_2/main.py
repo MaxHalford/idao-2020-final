@@ -60,7 +60,6 @@ dtypes = {
     'channel_name_modified_2018': 'category',
     'clnt_education_name': 'category',
     'clnt_marital_status_name': 'category',
-    'clnt_employment_type_name': 'category',
     'clnt_speciality_sphere_name': 'category',
     'clnt_sex_name': 'category',
     'prt_name': 'category',
@@ -99,10 +98,7 @@ dtypes = {
     'feature_5': 'uint',
     'feature_6': 'uint',
     'feature_7': 'uint',
-    'feature_8': 'uint',
-    'feature_9': 'uint',
     'fl_coborrower': 'bool',
-    'fl_active_coborrower': 'bool',
     'pay_load': 'float32',
     'makro_region': 'category',
     'fo': 'category',
@@ -114,12 +110,9 @@ fill_missing = [
     ('inquiry_recent_period', 0, 'uint'),
     ('inquiry_1_week', 0, 'uint'),
     ('clnt_experience_cur_mnth', 0, 'uint'),
-    ('clnt_experience_cur_year', 0, 'uint'),
     ('clnt_experience_total_mnth', 0, 'uint'),
     ('last_loan_date', 6200, 'uint'),
     ('first_loan_date', 6200, 'uint'),
-    ('ttl_officials', -1, 'category'),
-    ('ttl_legals', -1, 'category'),
     ('ttl_bankruptcies', -1, 'category'),
     ('inquiry_recent_period', 0, 'uint'),
     ('inquiry_3_month', 0, 'uint'),
@@ -131,7 +124,7 @@ fill_missing = [
     *[
         (f'feature_{i}', -1, 'float32')
         for i in range(10, 30)
-        if i != 11
+        if i != 11 and i != 26
     ]
 ]
 
